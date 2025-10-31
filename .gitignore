@@ -1,2 +1,136 @@
-/venv
-/clean_data.csv
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================================
+# IDEs & Editors
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# Jupyter Notebooks
+# ============================================
+.ipynb_checkpoints/
+*.ipynb
+
+# ============================================
+# Testing & Coverage
+# ============================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ============================================
+# MyPy
+# ============================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================================
+# Ruff
+# ============================================
+.ruff_cache/
+
+# ============================================
+# DVC - Files tracked by DVC
+# ============================================
+# Ignore all data files EXCEPT DVC meta-files:
+# Ignore everything in data/
+data/*
+# Do NOT ignore any .dvc file in data and subfolders
+!data/**/*.dvc
+# Et (pour l'existence du dossier dans git)
+!data/.gitkeep
+!data/raw_data/.gitkeep
+
+# All model files are tracked by DVC
+/models/**
+!/models/.gitkeep
+
+# Metrics directory (but not scores.json - tracked by git)
+/metrics/**
+!/metrics/.gitkeep
+!/metrics/scores.json
+
+# DVC cache and tmp
+.dvc/cache/
+.dvc/tmp/
+
+# ============================================
+# Logs
+# ============================================
+*.log
+logs/
+*.out
+*.err
+
+# ============================================
+# OS
+# ============================================
+Thumbs.db
+.DS_Store
+
+# ============================================
+# Docker
+# ============================================
+*.dockerignore
+docker-compose.override.yml
+
+# ============================================
+# Temporary files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# ============================================
+# Project specific
+# ============================================
+
