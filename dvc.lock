@@ -1,0 +1,148 @@
+schema: '2.0'
+stages:
+  split:
+    cmd: python src/data/split.py
+    deps:
+    - path: data/raw_data/raw.csv
+      hash: md5
+      md5: 617b56af2992376d5c3e91ad80823898
+      size: 333757
+    - path: src/data/split.py
+      hash: md5
+      md5: e15c32c6d4d764260315aba3b7f16427
+      size: 4481
+    params:
+      params.yaml:
+        split:
+          test_size: 0.2
+          random_state: 42
+          stratify: false
+    outs:
+    - path: data/processed_data/X_test.csv
+      hash: md5
+      md5: b2af62a7e108b077aec89fa2622996db
+      size: 52624
+    - path: data/processed_data/X_train.csv
+      hash: md5
+      md5: 535251fa6c1a1d098cc7a36e0bd62f38
+      size: 209468
+    - path: data/processed_data/y_test.csv
+      hash: md5
+      md5: a051d29629c8bbb4cfb7e85c7f0315da
+      size: 6456
+    - path: data/processed_data/y_train.csv
+      hash: md5
+      md5: a9cd9d91da89f732843d72548f64ded3
+      size: 25951
+  training:
+    cmd: python src/models/training.py
+    deps:
+    - path: data/processed_data/X_train.csv
+      hash: md5
+      md5: 535251fa6c1a1d098cc7a36e0bd62f38
+      size: 209468
+    - path: data/processed_data/y_train.csv
+      hash: md5
+      md5: a9cd9d91da89f732843d72548f64ded3
+      size: 25951
+    - path: src/models/training.py
+      hash: md5
+      md5: d8004849d991c06efc52745412554f66
+      size: 7130
+    params:
+      params.yaml:
+        grid_search:
+          cv: 5
+          scoring: neg_mean_squared_error
+          n_jobs: -1
+          verbose: 2
+          refit: true
+        models:
+        - name: RandomForest
+          params:
+            n_estimators:
+            - 100
+            - 200
+            - 300
+            max_depth:
+            - 10
+            - 20
+            - 30
+            - 
+            min_samples_split:
+            - 2
+            - 5
+            - 10
+            min_samples_leaf:
+            - 1
+            - 2
+            - 4
+            max_features:
+            - sqrt
+            - log2
+        - name: GradientBoosting
+          params:
+            n_estimators:
+            - 100
+            - 200
+            - 300
+            learning_rate:
+            - 0.01
+            - 0.05
+            - 0.1
+            - 0.2
+            max_depth:
+            - 3
+            - 5
+            - 7
+            min_samples_split:
+            - 2
+            - 5
+            min_samples_leaf:
+            - 1
+            - 2
+            subsample:
+            - 0.8
+            - 1.0
+        preprocessing:
+          numerical:
+            strategy: standard
+          categorical:
+            strategy: onehot
+    outs:
+    - path: models/best_params.json
+      hash: md5
+      md5: 77dd5937b83d3ff224b9051a78205cab
+      size: 246
+    - path: models/best_pipeline.pkl
+      hash: md5
+      md5: 38b0da12749e41c87658d25a50795922
+      size: 2996563
+  evaluate:
+    cmd: python src/models/evaluate.py
+    deps:
+    - path: data/processed_data/X_test.csv
+      hash: md5
+      md5: b2af62a7e108b077aec89fa2622996db
+      size: 52624
+    - path: data/processed_data/y_test.csv
+      hash: md5
+      md5: a051d29629c8bbb4cfb7e85c7f0315da
+      size: 6456
+    - path: models/best_pipeline.pkl
+      hash: md5
+      md5: 38b0da12749e41c87658d25a50795922
+      size: 2996563
+    - path: src/models/evaluate.py
+      hash: md5
+      md5: 019e7680b1ddd3b646bf32d476f0956e
+      size: 3851
+    outs:
+    - path: data/predictions.csv
+      hash: md5
+      md5: b3539b491d102561eaedc9837355f9bb
+      size: 73054
+    - path: metrics/scores.json
+      hash: md5
+      md5: 9bbe37cf17d2b8a1d2604230d270d293
+      size: 147
