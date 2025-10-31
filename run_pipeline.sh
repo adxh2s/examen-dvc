@@ -107,26 +107,12 @@ preflight_checks() {
 # DVC/Git Helper Functions
 # ================================================================
 
-dvc_track_data() {
-    local path=$1
-    log_info "Tracking $path with DVC..."
-    
-    if [ -f "${path}.dvc" ]; then
-        log_warning "$path already tracked, updating..."
-        dvc add "$path" --force
-    else
-        dvc add "$path"
-    fi
-    
-    git add "${path}.dvc" .gitignore
-}
-
 git_commit_stage() {
     local stage=$1
     local message=$2
     
     log_info "Committing changes for stage: $stage"
-    git add dvc.lock params.yaml src/
+    git add dvc.lock params.yaml src/ 2>/dev/null || true
     
     if [ -n "$(git status --porcelain)" ]; then
         git commit -m "$message" || log_warning "Nothing new to commit"
@@ -140,7 +126,7 @@ push_to_remote() {
     
     # Push to Git
     log_info "Pushing code to Git..."
-    git push origin main || log_warning "Git push failed (may need to set up remote)"
+    git push origin master || git push origin main || log_warning "Git push failed (may need to set up remote)"
     
     # Push to DVC/DagHub
     log_info "Pushing data and models to DVC remote..."
@@ -161,12 +147,12 @@ stage_split() {
     
     log_success "Data split completed!"
     
-    # Track processed data with DVC
-    log_info "Tracking processed data with DVC..."
-    dvc_track_data "data/processed_data"
+    # Note: Les outputs sont automatiquement trackés par DVC via dvc.yaml
+    # Pas besoin de dvc add manuel ici
+    log_info "Outputs tracked automatically by DVC pipeline (dvc.yaml)"
     
     # Commit changes
-    git_commit_stage "data_split" "feat: Run data split stage"
+    git_commit_stage "split" "feat: Run data split stage"
     
     log_success "Stage 1 completed and versioned!"
 }
@@ -185,9 +171,8 @@ stage_training() {
     
     log_success "Model training completed!"
     
-    # Track models with DVC
-    log_info "Tracking trained models with DVC..."
-    dvc_track_data "models"
+    # Note: Les modèles sont automatiquement trackés par DVC via dvc.yaml
+    log_info "Models tracked automatically by DVC pipeline (dvc.yaml)"
     
     # Commit changes
     git_commit_stage "training" "feat: Train models with GridSearchCV"
@@ -209,13 +194,12 @@ stage_evaluate() {
     
     log_success "Model evaluation completed!"
     
-    # Track predictions with DVC
-    log_info "Tracking predictions with DVC..."
-    dvc_track_data "data/predictions.csv"
+    # Note: Les prédictions sont automatiquement trackées par DVC via dvc.yaml
+    log_info "Predictions tracked automatically by DVC pipeline (dvc.yaml)"
     
     # Metrics are tracked by Git (not DVC)
     log_info "Adding metrics to Git..."
-    git add metrics/scores.json
+    git add metrics/scores.json 2>/dev/null || true
     
     # Commit changes
     git_commit_stage "evaluate" "feat: Evaluate model and generate predictions"
@@ -277,9 +261,10 @@ run_complete_pipeline() {
     echo "  4. Experiment with different parameters in params.yaml"
     echo ""
     echo -e "${BLUE}Useful commands:${NC}"
-    echo "  dvc dag          - Visualize pipeline DAG"
-    echo "  dvc metrics show - Display metrics"
-    echo "  git log --oneline - View commit history"
+    echo "  dvc dag              - Visualize pipeline DAG"
+    echo "  dvc metrics show     - Display metrics"
+    echo "  git log --oneline    - View commit history"
+    echo "  dvc repro            - Reproduce pipeline from dvc.yaml"
     echo ""
 }
 

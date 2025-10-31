@@ -138,6 +138,12 @@ def main() -> None:
     
     # Load and split data
     df = load_raw_data(raw_file)
+
+    # Retirer la colonne date (première colonne)
+    if 'date' in df.columns:
+        logger.info("Dropping 'date' column from features")
+        df = df.drop(columns=['date'])
+
     X, y = split_features_target(df)
     
     X_train, X_test, y_train, y_test = split_train_test(

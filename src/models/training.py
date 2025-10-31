@@ -16,7 +16,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # Constants
 PROJECT_ROOT = Path(__file__).parents[2]
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
+PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed_data"
 MODELS_PATH = PROJECT_ROOT / "models"
 PARAMS_PATH = PROJECT_ROOT / "params.yaml"
 

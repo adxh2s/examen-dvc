@@ -4,8 +4,8 @@ Dans ce dépôt vous trouverez l'architecture proposé pour mettre en place la s
 ```bash       
 ├── examen_dvc          
 │   ├── data       
-│   │   ├── processed      
-│   │   └── raw       
+│   │   ├── processed_data      
+│   │   └── raw_data       
 │   ├── metrics       
 │   ├── models      
 │   │   ├── data      

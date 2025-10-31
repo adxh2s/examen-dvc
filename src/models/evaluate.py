@@ -13,7 +13,7 @@ from sklearn.pipeline import Pipeline
 
 # Constants
 PROJECT_ROOT = Path(__file__).parents[2]
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
+PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed_data"
 MODELS_PATH = PROJECT_ROOT / "models"
 METRICS_PATH = PROJECT_ROOT / "metrics"
 DATA_PATH = PROJECT_ROOT / "data"
