@@ -4,6 +4,7 @@ stages:
     deps:
       - src/data/split.py
       - data/raw_data/raw.csv
+      - params.yaml
     params:
       - split
     outs:
@@ -18,6 +19,7 @@ stages:
       - src/models/training.py
       - data/processed_data/X_train.csv
       - data/processed_data/y_train.csv
+      - params.yaml
     params:
       - models
       - grid_search

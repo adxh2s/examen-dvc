@@ -7,6 +7,10 @@ stages:
       hash: md5
       md5: 617b56af2992376d5c3e91ad80823898
       size: 333757
+    - path: params.yaml
+      hash: md5
+      md5: 5f8c4e6151cbfca360f125f4db2a0968
+      size: 1276
     - path: src/data/split.py
       hash: md5
       md5: e15c32c6d4d764260315aba3b7f16427
@@ -45,6 +49,10 @@ stages:
       hash: md5
       md5: a9cd9d91da89f732843d72548f64ded3
       size: 25951
+    - path: params.yaml
+      hash: md5
+      md5: 5f8c4e6151cbfca360f125f4db2a0968
+      size: 1276
     - path: src/models/training.py
       hash: md5
       md5: d8004849d991c06efc52745412554f66
