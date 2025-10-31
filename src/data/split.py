@@ -126,7 +126,7 @@ def main() -> None:
     """Main execution function."""
     # Load parameters
     params = load_params()
-    split_params = params["data_split"]
+    split_params = params["split"]
     
     # Find CSV file in raw data directory
     csv_files = list(RAW_DATA_PATH.glob("*.csv"))

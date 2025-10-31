@@ -1,5 +1,5 @@
 # Data Split Parameters
-data_split:
+split:
   test_size: 0.2
   random_state: 42
   stratify: false  # Set to true if classification

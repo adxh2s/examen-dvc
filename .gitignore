@@ -79,13 +79,13 @@ dmypy.json
 # DVC - Files tracked by DVC
 # ============================================
 # Ignore all data files EXCEPT DVC meta-files:
-# Ignore everything in data/
-data/*
-# Do NOT ignore any .dvc file in data and subfolders
-!data/**/*.dvc
-# Et (pour l'existence du dossier dans git)
-!data/.gitkeep
-!data/raw_data/.gitkeep
+data/processed_data/
+!data/processed_data/*.dvc
+!data/processed_data/.gitkeep
+data/raw_data/
+!data/raw_data/*.dvc
+!data/raw_data_data/.gitkeep
+data/predictions.csv
 
 # All model files are tracked by DVC
 /models/**
