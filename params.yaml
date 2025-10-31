@@ -1,0 +1,48 @@
+# Data Split Parameters
+data_split:
+  test_size: 0.2
+  random_state: 42
+  stratify: false  # Set to true if classification
+
+# Preprocessing Parameters
+preprocessing:
+  numerical:
+    strategy: "standard"  # standard, minmax, robust
+  categorical:
+    strategy: "onehot"    # onehot, label, target
+
+# Model Selection for Regression
+models:
+  - name: "RandomForest"
+    params:
+      n_estimators: [100, 200, 300]
+      max_depth: [10, 20, 30, null]
+      min_samples_split: [2, 5, 10]
+      min_samples_leaf: [1, 2, 4]
+      max_features: ["sqrt", "log2"]
+      
+  - name: "GradientBoosting"
+    params:
+      n_estimators: [100, 200, 300]
+      learning_rate: [0.01, 0.05, 0.1, 0.2]
+      max_depth: [3, 5, 7]
+      min_samples_split: [2, 5]
+      min_samples_leaf: [1, 2]
+      subsample: [0.8, 1.0]
+
+# Grid Search Parameters
+grid_search:
+  cv: 5  # Cross-validation folds
+  scoring: "neg_mean_squared_error"  # For regression
+  n_jobs: -1  # Use all CPU cores
+  verbose: 2  # Progress verbosity
+  refit: true  # Refit best model on full dataset
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - "mse"    # Mean Squared Error
+    - "rmse"   # Root Mean Squared Error
+    - "mae"    # Mean Absolute Error
+    - "r2"     # R² Score
+    - "mape"   # Mean Absolute Percentage Error
