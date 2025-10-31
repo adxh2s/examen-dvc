@@ -10,8 +10,8 @@ from sklearn.model_selection import train_test_split
 
 # Constants
 PROJECT_ROOT = Path(__file__).parents[2]
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw_data"
+PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed_data"
 PARAMS_PATH = PROJECT_ROOT / "params.yaml"
 
 # Logging configuration

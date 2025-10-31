@@ -3,21 +3,21 @@ stages:
     cmd: python src/data/split.py
     deps:
       - src/data/split.py
-      - data/raw
+      - data/raw_data
     params:
       - data_split
     outs:
-      - data/processed/X_train.csv
-      - data/processed/X_test.csv
-      - data/processed/y_train.csv
-      - data/processed/y_test.csv
+      - data/processed_data/X_train.csv
+      - data/processed_data/X_test.csv
+      - data/processed_data/y_train.csv
+      - data/processed_data/y_test.csv
 
   training:
     cmd: python src/models/training.py
     deps:
       - src/models/training.py
-      - data/processed/X_train.csv
-      - data/processed/y_train.csv
+      - data/processed_data/X_train.csv
+      - data/processed_data/y_train.csv
     params:
       - models
       - grid_search
@@ -31,8 +31,8 @@ stages:
     deps:
       - src/models/evaluate.py
       - models/best_pipeline.pkl
-      - data/processed/X_test.csv
-      - data/processed/y_test.csv
+      - data/processed_data/X_test.csv
+      - data/processed_data/y_test.csv
     outs:
       - data/predictions.csv
     metrics:

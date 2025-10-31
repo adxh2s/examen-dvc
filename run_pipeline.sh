@@ -94,9 +94,9 @@ preflight_checks() {
     fi
     
     # Check if raw data exists
-    if [ ! "$(ls -A data/raw/*.csv 2>/dev/null)" ]; then
-        log_error "No CSV files found in data/raw/"
-        log_info "Please add your dataset to data/raw/ before running the pipeline"
+    if [ ! "$(ls -A data/raw_data/*.csv 2>/dev/null)" ]; then
+        log_error "No CSV files found in data/raw_data/"
+        log_info "Please add your dataset to data/raw_data/ before running the pipeline"
         exit 1
     fi
     
@@ -143,7 +143,7 @@ push_to_remote() {
     git push origin main || log_warning "Git push failed (may need to set up remote)"
     
     # Push to DVC/DagHub
-    log_info "Pushing data/models to DVC remote..."
+    log_info "Pushing data and models to DVC remote..."
     dvc push || log_warning "DVC push failed (check remote configuration)"
     
     log_success "Push completed!"
@@ -163,7 +163,7 @@ stage_split() {
     
     # Track processed data with DVC
     log_info "Tracking processed data with DVC..."
-    dvc_track_data "data/processed"
+    dvc_track_data "data/processed_data"
     
     # Commit changes
     git_commit_stage "data_split" "feat: Run data split stage"
@@ -175,7 +175,7 @@ stage_training() {
     section_header "Stage 2: Model Training"
     
     # Check dependencies
-    if [ ! -d "data/processed" ]; then
+    if [ ! -d "data/processed_data" ]; then
         log_error "Processed data not found. Run stage 'split' first."
         exit 1
     fi
