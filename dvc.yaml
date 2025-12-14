@@ -2,41 +2,63 @@ stages:
   split:
     cmd: python src/data/split.py
     deps:
-      - src/data/split.py
-      - data/raw_data/raw.csv
-      - params.yaml
+    - src/data/split.py
+    - data/raw_data/raw.csv
+    - params.yaml
     params:
-      - split
+    - split
     outs:
-      - data/processed_data/X_train.csv
-      - data/processed_data/X_test.csv
-      - data/processed_data/y_train.csv
-      - data/processed_data/y_test.csv
+    - data/processed_data/X_train.csv
+    - data/processed_data/X_test.csv
+    - data/processed_data/y_train.csv
+    - data/processed_data/y_test.csv
+
+  normalize:
+    cmd: python src/data/normalize.py
+    deps:
+    - src/data/normalize.py
+    - data/processed_data/X_train.csv
+    - data/processed_data/X_test.csv
+    - params.yaml
+    params:
+    - preprocessing
+    outs:
+    - data/processed_data/X_train_scaled.csv
+    - data/processed_data/X_test_scaled.csv
+
+  grid_search:
+    cmd: python src/models/grid_search.py
+    deps:
+    - src/models/grid_search.py
+    - data/processed_data/X_train_scaled.csv
+    - data/processed_data/y_train.csv
+    - params.yaml
+    params:
+    - models
+    - grid_search
+    outs:
+    - models/best_params.pkl
 
   training:
     cmd: python src/models/training.py
     deps:
-      - src/models/training.py
-      - data/processed_data/X_train.csv
-      - data/processed_data/y_train.csv
-      - params.yaml
-    params:
-      - models
-      - grid_search
-      - preprocessing
+    - src/models/training.py
+    - models/best_params.pkl
+    - data/processed_data/X_train_scaled.csv
+    - data/processed_data/y_train.csv
     outs:
-      - models/best_pipeline.pkl
-      - models/best_params.json
+    - models/model.pkl
 
   evaluate:
     cmd: python src/models/evaluate.py
     deps:
-      - src/models/evaluate.py
-      - models/best_pipeline.pkl
-      - data/processed_data/X_test.csv
-      - data/processed_data/y_test.csv
-    outs:
-      - data/predictions.csv
+    - src/models/evaluate.py
+    - models/model.pkl
+    - data/processed_data/X_test_scaled.csv
+    - data/processed_data/y_test.csv
+    - params.yaml
     metrics:
-      - metrics/scores.json:
-          cache: false
+    - metrics/scores.json:
+        cache: false
+    outs:
+    - data/predictions.csv
