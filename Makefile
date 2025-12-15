@@ -1,58 +1,113 @@
-# Makefile Examen MLOps
-# Utilisation : make init USER=... REPO=... TOKEN=...
+# Makefile Examen MLOps DVC avec uv
+# Utilisation : make init USER=pseudo REPO=projet TOKEN=xyz
 
-DAGSHUB_USER ?= adx.h2s
-REPO_NAME ?= adxh2s
-DAGSHUB_TOKEN ?= 8c8eb86114934fe30e6eeb0fb20cfd6fca9d3dbd
+DAGSHUB_USER ?= user_placeholder
+REPO_NAME ?= repo_placeholder
+DAGSHUB_TOKEN ?= token_placeholder
 
-.PHONY: help init run save clean reset
+# Couleurs
+GREEN = \033[0;32m
+BLUE = \033[0;34m
+RED = \033[0;31m
+NC = \033[0m
 
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+.PHONY: help all init run save clean reset check
 
-reset: ## ⚠️  DANGER : Supprime tout (.venv, .dvc, lock, data générée) pour repartir de zéro
-	@echo "\033[31m=== HARD RESET ===\033[0m"
-	rm -rf .venv
-	rm -rf .dvc
+help: ## Affiche l'aide
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "${BLUE}%-15s${NC} %s\n", $$1, $$2}'
+
+all: ## Cycle complet : Reset -> Init -> Run -> Save
+	@echo "${BLUE}=== DÉMARRAGE DU CYCLE COMPLET ===${NC}"
+	$(MAKE) reset
+	$(MAKE) init
+	$(MAKE) run
+	$(MAKE) save
+	@echo "${GREEN}✅ CYCLE COMPLET TERMINÉ AVEC SUCCÈS${NC}"
+
+reset: ## ⚠️  HARD RESET (Supprime env, dvc config, data générée)
+	@echo "${RED}=== HARD RESET ===${NC}"
+	rm -rf .venv .dvc
 	rm -f dvc.lock
-	rm -rf data/processed_data/*
-	rm -rf models/*
-	rm -rf metrics/*
-	# On garde raw.csv s'il est là, mais on supprime le tracking dvc associé pour le refaire
+	# On garde dvc.yaml !
+	rm -rf data/processed_data/* models/* metrics/*
 	rm -f data/raw_data/*.dvc
-	@echo "Projet nettoyé. Lancez 'make init' pour recommencer."
+	@echo "Projet nettoyé."
 
-init: ## Installe l'environnement et configure DVC (Idempotent)
-	@echo "\033[34m=== Initialisation ===\033[0m"
+init: ## Init complet (Deps, DVC, Remote) + Double Vérification
+	@echo "${BLUE}=== Initialisation ===${NC}"
 	
-	# 1. Python Venv avec uv
+	# 1. Dépendances
 	uv sync
 	
-	# 2. DVC Init (si pas fait)
-	@if [ ! -d ".dvc" ]; then \
-		echo "Initialisation DVC..."; \
-		uv run dvc init; \
-	fi
+	# 2. DVC Init
+	@if [ ! -d ".dvc" ]; then uv run dvc init; fi
 
-	# 3. Config Dagshub (Force la mise à jour)
+	# 3. Config Remote DVC (S3)
+	@echo "Configuration DVC Remote..."
 	uv run dvc remote add -f origin s3://dvc
+	uv run dvc remote default origin
 	uv run dvc remote modify origin endpointurl https://dagshub.com/$(DAGSHUB_USER)/$(REPO_NAME).s3
 	uv run dvc remote modify origin --local access_key_id $(DAGSHUB_TOKEN)
 	uv run dvc remote modify origin --local secret_access_key $(DAGSHUB_TOKEN)
 	
-	# 4. Tracking du fichier Raw (Spécifique pour le démarrage)
+	# 4. Tracking Raw Data
 	@if [ -f "data/raw_data/raw.csv" ] && [ ! -f "data/raw_data/raw.csv.dvc" ]; then \
-		echo "Tracking du fichier raw.csv..."; \
+		echo "Tracking raw.csv..."; \
 		uv run dvc add data/raw_data/raw.csv; \
 	fi
 	
-	@echo "\033[32mPrêt à travailler.\033[0m"
+	# 5. Vérifications finales
+	@$(MAKE) check
+	
+	@echo "${GREEN}Projet prêt !${NC}"
 
-run: ## Lance le pipeline (dvc repro)
+check: ## Vérifie la connexion DVC (S3) ET Git (HTTPS/SSH)
+	@echo "${BLUE}--- Test des connexions ---${NC}"
+	
+	# Test DVC
+	@echo -n "Test connexion DVC (S3)... "
+	@if uv run dvc status -r origin >/dev/null 2>&1; then \
+		echo "${GREEN}OK${NC}"; \
+	else \
+		echo "${RED}ECHEC${NC}"; \
+		echo "Vérifiez votre TOKEN et l'URL DagsHub."; \
+		exit 1; \
+	fi
+
+	# Test Git
+	@echo -n "Test connexion Git (Push Access)... "
+	@if git ls-remote --heads origin >/dev/null 2>&1; then \
+		echo "${GREEN}OK${NC}"; \
+	else \
+		echo "${RED}ECHEC${NC}"; \
+		echo "Vérifiez vos clés SSH ou vos credentials Git."; \
+		exit 1; \
+	fi
+	
+	@echo "${GREEN}✅ Tous les voyants sont au vert.${NC}"
+
+run: ## Lance le Pipeline DVC complet
+	@echo "${BLUE}=== Lancement du Pipeline ===${NC}"
 	uv run dvc repro
+	@echo "${GREEN}Pipeline terminé.${NC}"
+	@if [ -f "metrics/scores.json" ]; then cat metrics/scores.json; fi
 
-save: ## Git push + DVC push
+save: ## Sauvegarde Git + Push Data/Code
+	@echo "${BLUE}=== Sauvegarde Complète ===${NC}"
+	
+	# Pré-check
+	@$(MAKE) check
+	
 	git add .
-	-git commit -m "Save pipeline $(shell date +%F_%H-%M)"
+	-git commit -m "Pipeline run: $(shell date '+%Y-%m-%d %H:%M')"
+	
+	@echo "${BLUE}Push Data (DVC)...${NC}"
 	uv run dvc push
+	
+	@echo "${BLUE}Push Code (Git)...${NC}"
 	git push
+	@echo "${GREEN}Projet synchronisé !${NC}"
+
+clean: ## Nettoyage des fichiers générés
+	rm -rf data/processed_data/* data/predictions.csv models/* metrics/*
+	@echo "${GREEN}Nettoyé.${NC}"
