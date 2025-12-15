@@ -1,5 +1,6 @@
 # Examen DVC et Dagshub
-Dans ce dépôt vous trouverez l'architecture proposé pour mettre en place la solution de l'examen. 
+
+## Structure Projet
 
 ```bash       
 ├── examen_dvc          
@@ -7,15 +8,37 @@ Dans ce dépôt vous trouverez l'architecture proposé pour mettre en place la s
 │   │   ├── processed_data      
 │   │   └── raw_data       
 │   ├── metrics       
-│   ├── models      
-│   │   ├── data      
-│   │   └── models        
+│   ├── models        
 │   ├── src       
+│   │   ├── data      
+│   │   └── models
+|   ├── Makefile
+|   ├── params.yaml    
 │   └── README.md.py       
 ```
-N'hésitez pas à rajouter les dossiers ou les fichiers qui vous semblent pertinents.
 
-Vous devez dans un premier temps *Fork* le repo et puis le cloner pour travailler dessus. Le rendu de cet examen sera le lien vers votre dépôt sur DagsHub.     
-Faites attention à bien mettre https://dagshub.com/licence.pedago en tant que colaborateur avec des droits de lecture seulement pour que ce soit corrigé.
+## Pré-requis
 
-Vous pouvez télécharger les données à travers le lien suivant : https://datascientest-mlops.s3.eu-west-1.amazonaws.com/mlops_dvc_fr/raw.csv.
+1. UV pour la gestion de l'environnement de travail local et son pyproject
+2. le fichier csv de départ dans /data/raw
+3. un git, dvc et dagshub paramétré
+4. make pour lancer les différentes commandes du Makefile, les lignes de commandes attendent les parametres DAGSHUB user, repo et token
+
+## Important !
+> Attention : la commande make all lance toutes les commandes principales, dont le reset et l'init en début, pour avoir un environnement de travail propre.
+> A ne faire qu'une seule fois, passer ensuite par make run et make save pour lancer le pipeline de traitement et la sauvegarde git/dvc
+   
+##  Dépot git / dagshub
+
+1. Le git
+> https://github.com/adxh2s/examen-dvc.git
+
+1. Le dagshub
+> https://dagshub.com/adx.h2s/examen-dvc
+> le repository est normalement partagé avec le collaborateur licence pedagogique en lecture uniquement.
+
+1. Makefile
+> C'est orchestrateur des traitements - commandes principales :
+> make all avec DAGSHUB_USER, REPO_NAME et DAGSHUB_TOKEN en parametres pour la gestion des sources/data/modeles, etc. par git/dvc.
+> make run lance le pipeline de traitement complet pour tous les scripts
+> make help donne toutes les commandes disponibles
